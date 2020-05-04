@@ -3,6 +3,7 @@
 // Inclusão de bibliotecas importantes aqui
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include <sstream>
 
 // Namespace do SFML
 using namespace sf;
@@ -46,6 +47,18 @@ int main()
     Texture textureCloud;
     textureCloud.loadFromFile("graphics/cloud.png");
 
+    /*
+    Sprite spriteClouds[5];
+    bool cloudActive[5];
+    float cloudSpeed[5];
+    for (int i = 0; i < 5; i++) {
+        spriteClouds[i].setTexture(textureCloud);
+        spriteClouds[i].setPosition(0, i * 160 * scale);
+        spriteClouds[i].setScale(scale, scale);
+        cloudActive[i] = false;
+        cloudSpeed[i] = 0.0f;
+    }*/
+
     Sprite spriteCloud1;
     spriteCloud1.setTexture(textureCloud);
     spriteCloud1.setPosition(0, 0);
@@ -70,11 +83,52 @@ int main()
     // Inicializa número aleatório
     int number = (rand() % 100);
 
+    // Variável para score
+    int gameScore = 0;
+
     // Variável pra controle de tempo
     Clock clock;
 
+    // Barra de tempo
+    RectangleShape timeBar;
+    float timeBarStartWidth = 400;
+    float timeBarHeight = 80;
+    timeBar.setSize(Vector2f(timeBarStartWidth * scale, timeBarHeight * scale));
+    timeBar.setFillColor(Color::Red);
+    timeBar.setPosition(((1920 / 2) - timeBarStartWidth / 2) * scale, 980 * scale);
+ 
+    Time gameTimeTotal;
+    float timeRemaining = 6.0f;
+    float timeBarWidthPerSecond = timeBarStartWidth / timeRemaining;
+ 
     // Variável de pausa
     bool paused = true;
+
+    // Fonte para o HUD
+    Font mainFont;
+    mainFont.loadFromFile("fonts/KOMIKAP_.ttf");
+
+    // Variáveis para texto
+    Text messageText;
+    messageText.setFont(mainFont);
+    messageText.setString("Aperte Enter para jogar!");
+    messageText.setCharacterSize(75 * scale);
+    messageText.setFillColor(Color::White);
+    
+    Text scoreText;
+    scoreText.setFont(mainFont);
+    scoreText.setString("Score = 0");
+    scoreText.setCharacterSize(100 * scale);
+    scoreText.setFillColor(Color::White);
+
+    // Posicionando os textos
+    FloatRect textRect = messageText.getLocalBounds();
+    messageText.setOrigin(textRect.left + textRect.width / 2.0f,
+        textRect.top + textRect.height / 2.0f);
+    messageText.setPosition(1920 * scale / 2.0f, 1080 * scale/ 2.0f);
+    textRect = scoreText.getLocalBounds();
+    scoreText.setOrigin(textRect.left + textRect.width, textRect.top);
+    scoreText.setPosition(1900 * scale, 20 * scale);
 
     while (window.isOpen()) {
         // *********************************************
@@ -85,6 +139,8 @@ int main()
         }
         if (Keyboard::isKeyPressed(Keyboard::Return)) {
             paused = false;
+            gameScore = 0;
+            timeRemaining = 5;
         }
 
         // *********************************************
@@ -108,6 +164,21 @@ int main()
             // Implementação considerando o framerate
             // Mede o tempo
             Time dt = clock.restart();
+            gameScore++;
+
+            // Atualiza a contagem de tempo
+            timeRemaining -= dt.asSeconds();
+            timeBar.setSize(Vector2f((timeBarWidthPerSecond * timeRemaining) * scale, timeBarHeight * scale));
+            
+            // Se o tempo esgotar
+            if (timeRemaining <= 0.0f) {
+                paused = true;
+                messageText.setString("Sem tempo, irmao!");
+                FloatRect textRect = messageText.getLocalBounds();
+                messageText.setOrigin(textRect.left + textRect.width / 2.0f,
+                    textRect.top + textRect.height / 2.0f);
+                messageText.setPosition(1920 * scale / 2.0f, 1080 * scale / 2.0f);
+            }
 
             // Se a abelha estiver desativada, posiciona a abelha
             if (!beeActive) {
@@ -190,6 +261,12 @@ int main()
                     cloud3Active = false;
                 }
             }
+            // Atualiza a mensagem de score
+            std::stringstream ss;
+            ss << "Score = " << gameScore;
+            scoreText.setString(ss.str());
+            FloatRect textRect = scoreText.getLocalBounds();
+            scoreText.setOrigin(textRect.left + textRect.width, textRect.top);
         }
         // *********************************************
         // DESENHA O FRAME
@@ -203,6 +280,11 @@ int main()
         window.draw(spriteCloud3);
         window.draw(spriteTree);
         window.draw(spriteBee);
+        window.draw(timeBar);
+        window.draw(scoreText);
+        if (paused) {
+            window.draw(messageText);
+        }
         // Exibe o que foi desenhado
         window.display();
 
