@@ -43,30 +43,21 @@ int main()
     float beeSpeed = 0.0f;
 
     // Configurações das nuvens
+    const int cloudsAmount = 3;
     Texture textureCloud;
     textureCloud.loadFromFile("graphics/cloud.png");
 
-    Sprite spriteCloud1;
-    spriteCloud1.setTexture(textureCloud);
-    spriteCloud1.setPosition(0, 0);
-    spriteCloud1.setScale(scale, scale);
-    bool cloud1Active = false;
-    float cloud1Speed = 0.0f;
-
-    Sprite spriteCloud2;
-    spriteCloud2.setTexture(textureCloud);
-    spriteCloud2.setPosition(0, 160 * scale);
-    spriteCloud2.setScale(scale, scale);
-    bool cloud2Active = false;
-    float cloud2Speed = 0.0f;
-
-    Sprite spriteCloud3;
-    spriteCloud3.setTexture(textureCloud);
-    spriteCloud3.setPosition(0, 320 * scale);
-    spriteCloud3.setScale(scale, scale);
-    bool cloud3Active = false;
-    float cloud3Speed = 0.0f;
-
+    Sprite spriteCloud[cloudsAmount];
+    bool cloudActive[cloudsAmount];
+    float cloudSpeed[cloudsAmount];
+    for (int i = 0; i < cloudsAmount; i++) {
+        spriteCloud[i].setTexture(textureCloud);
+        spriteCloud[i].setPosition(0, 160 * scale * i);
+        spriteCloud[i].setScale(scale, scale);
+        cloudActive[i] = false;
+        cloudSpeed[i] = 0.0f;
+    } 
+    
     // Inicializa número aleatório
     int number = (rand() % 100);
 
@@ -133,63 +124,28 @@ int main()
             }
 
             // Animação das nuvens
-            // Nuvem 1
-            if (!cloud1Active) {
-                // Determina velocidade da nuvem 1
-                srand((int)time(0) * 10);
-                cloud1Speed = (rand() % 200);
-                // Determina altura da nuvem 1
-                srand((int)time(0) * 10);
-                float height = ((rand() % 150)) * scale;
-                spriteCloud1.setPosition(-250 * scale, height);
-                cloud1Active = true;
-            }
-            else {
-                spriteCloud1.setPosition(
-                    spriteCloud1.getPosition().x + (cloud1Speed * dt.asSeconds()),
-                    spriteCloud1.getPosition().y);
-                if (spriteCloud1.getPosition().x > 1920 * scale) {
-                    cloud1Active = false;
+            for (int i = 0; i < cloudsAmount; i++) {
+                int j = i + 1;
+                if (!cloudActive[i]) {
+                    // Determina velocidade da nuvem
+                    srand((int)time(0) * 10 * j); 
+                    cloudSpeed[i] = (rand() % 200);
+                    // Determina altura da nuvem
+                    srand((int)time(0) * 10 * j);
+                    float height = ((rand() % (150 * j)) - (150 * i)) * scale;
+                    spriteCloud[i].setPosition(-250 * scale, height);
+                    cloudActive[i] = true;
+                }
+                else {
+                    spriteCloud[i].setPosition(
+                        spriteCloud[i].getPosition().x + (cloudSpeed[i] * dt.asSeconds()),
+                        spriteCloud[i].getPosition().y);
+                    if (spriteCloud[i].getPosition().x > 1920 * scale) {
+                        cloudActive[i] = false;
+                    }
                 }
             }
-            // Nuvem 2
-            if (!cloud2Active) {
-                // Determina velocidade da nuvem 2
-                srand((int)time(0) * 20);
-                cloud2Speed = (rand() % 200);
-                // Determina altura da nuvem 1
-                srand((int)time(0) * 10);
-                float height = (rand() % 300) - 150;
-                spriteCloud2.setPosition(-250 * scale, height);
-                cloud2Active = true;
-            }
-            else {
-                spriteCloud2.setPosition(
-                    spriteCloud2.getPosition().x + (cloud2Speed * dt.asSeconds()),
-                    spriteCloud2.getPosition().y);
-                if (spriteCloud2.getPosition().x > 1920 * scale) {
-                    cloud2Active = false;
-                }
-            }
-            // Nuvem 3
-            if (!cloud3Active) {
-                // Determina velocidade da nuvem 2
-                srand((int)time(0) * 30);
-                cloud3Speed = (rand() % 200);
-                // Determina altura da nuvem 1
-                srand((int)time(0) * 30);
-                float height = ((rand() % 450) - 150) * scale;
-                spriteCloud3.setPosition(-250 * scale, height);
-                cloud3Active = true;
-            }
-            else {
-                spriteCloud3.setPosition(
-                    spriteCloud3.getPosition().x + (cloud3Speed * dt.asSeconds()),
-                    spriteCloud3.getPosition().y);
-                if (spriteCloud3.getPosition().x > 1920 *  scale) {
-                    cloud3Active = false;
-                }
-            }
+            
         }
         // *********************************************
         // DESENHA O FRAME
@@ -198,9 +154,9 @@ int main()
         window.clear();
         // Desenha cada item da cena
         window.draw(spriteBackground);
-        window.draw(spriteCloud1);
-        window.draw(spriteCloud2);
-        window.draw(spriteCloud3);
+        for (int i = 0; i < cloudsAmount; i++) {
+            window.draw(spriteCloud[i]);
+        }
         window.draw(spriteTree);
         window.draw(spriteBee);
         // Exibe o que foi desenhado
