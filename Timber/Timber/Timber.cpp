@@ -2,6 +2,7 @@
 
 // Inclusão de bibliotecas importantes aqui
 #include <iostream>
+#include <sstream>
 #include <SFML/Graphics.hpp>
 
 // Namespace do SFML
@@ -66,6 +67,37 @@ int main()
 
     // Variável de pausa
     bool paused = true;
+
+    // Variável de pontuação
+    int score = 0;
+
+    // Variáveis de texto
+    // Carregando a fonte
+    Font font;
+    font.loadFromFile("fonts/KOMIKAP_.ttf");
+    sf::Text messageText;
+    messageText.setFont(font);
+    messageText.setString("Press Enter to start!");
+    messageText.setCharacterSize(75 * scale);
+    messageText.setFillColor(Color::White);
+
+    sf::Text scoreText;
+    scoreText.setFont(font);
+    scoreText.setString("Score = 0");
+    scoreText.setCharacterSize(100 * scale);
+    scoreText.setFillColor(Color::White);
+
+    // Posiciona o texto de abertura
+    FloatRect messageRect = messageText.getGlobalBounds();
+    messageText.setOrigin(messageRect.left + (messageRect.width / 2.0f),
+        messageRect.top + (messageRect.height / 2.0f));
+    messageText.setPosition(desktopWidth / 2.0f, desktopHeight / 2.0f );
+
+    // Posiciona texto do score
+    float scoreWidthOffset = 0.65f;
+    float scoreHeightOffset = 0.03f;
+    scoreText.setPosition(desktopWidth * scoreWidthOffset, desktopHeight * scoreHeightOffset);
+    
 
     while (window.isOpen()) {
         // *********************************************
@@ -145,7 +177,11 @@ int main()
                     }
                 }
             }
-            
+
+            // Atualiza a mensagem de score
+            std::stringstream ss;
+            ss << "Score = " << score;
+            scoreText.setString(ss.str());
         }
         // *********************************************
         // DESENHA O FRAME
@@ -159,10 +195,12 @@ int main()
         }
         window.draw(spriteTree);
         window.draw(spriteBee);
+        window.draw(scoreText);
+        if (paused) {
+            window.draw(messageText);
+        }
         // Exibe o que foi desenhado
         window.display();
-
-
     }
 
     return 0;
