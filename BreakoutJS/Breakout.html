@@ -1,0 +1,138 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Teste de Joguinho Javascript</title>
+    <style>
+        * { padding: 0; margin: 0; }
+        canvas { background : #000; display:block; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas" width="480" height="320"></canvas>
+    <script>
+        var canvas = document.getElementById("myCanvas");
+        var ctx = canvas.getContext("2d");
+
+        var pause = false;
+        var padding = 20;
+
+        var ballRadius = 5;
+        var ballX = canvas.width / 2;
+        var ballY = canvas.height / 2;
+        var ballDeltaX = 2;
+        var ballDeltaY = 2;
+
+        var stickHeight = 30;
+        var stickWidth = 10;
+
+        var leftStickX = padding;
+        var leftStickY = (canvas.height / 2) - (stickHeight / 2);
+        var leftDeltaX = 1;
+        var leftDeltaY = 1;
+
+        var rightStickX = canvas.width - padding - stickWidth;
+        var rightStickY = (canvas.height / 2) - (stickHeight / 2);
+        var rightDeltaX = 3;
+        var rightDeltaY = 3;
+
+        var upPressed = false;
+        var downPressed = false;
+
+        function drawBall() {
+            // Bola
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2, false);
+            ctx.fillStyle = "white";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawPranchaEsquerda() {
+            // Prancha esquerda
+            ctx.beginPath();
+            ctx.rect(leftStickX, leftStickY, stickWidth, stickHeight);
+            ctx.fillStyle = "white";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawPranchaDireita() {
+            // Prancha direita
+            ctx.beginPath();
+            ctx.rect(rightStickX, rightStickY, stickWidth, stickHeight);
+            ctx.fillStyle = "white";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function updateBallPosition() {
+            ballX = ballX + ballDeltaX;
+            if (ballX == leftStickX + stickWidth) {
+                if (ballY >= leftStickY && ballY <= leftStickY + stickHeight) {
+                    ballDeltaX = ballDeltaX * (-1);
+                }
+            }
+            if (ballX == rightStickX) {
+                if (ballY >= rightStickY && ballY <= rightStickY + stickHeight) {
+                    ballDeltaX = ballDeltaX * (-1);
+                }
+            }
+
+            if (ballX <= 0 || ballX >= canvas.width) {
+                pause = true;
+            }
+        }
+
+        function updateRightStick() {
+            if (upPressed) {
+                
+                rightStickY -= rightDeltaY;
+            }
+            else if (downPressed) {
+                if (rightDeltaY)
+                rightStickY += rightDeltaY;
+            }
+        }
+
+        function updateLeftStick() {
+
+        }
+
+        function gameLoop() {
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);         
+            drawBall();
+            drawPranchaDireita();
+            drawPranchaEsquerda();
+            updateBallPosition();
+            updateLeftStick();
+            updateRightStick();
+        }
+
+        document.addEventListener("keydown", keyDownHandler, false);
+        document.addEventListener("keyup", keyUpHandler, false);
+
+        function keyDownHandler(e) {
+            if (e.key == "Up" || e.key == "ArrowUp") {
+                upPressed = true;
+            }
+            else if (e.key == "Down" || e.key == "ArrowDown") {
+                downPressed = true;
+            }
+        }
+
+        function keyUpHandler(e) {
+            if (e.key == "Up" || e.key == "ArrowUp") {
+                upPressed = false;
+            }
+            else if (e.key == "Down" || e.key == "ArrowDown") {
+                downPressed = false;
+            }
+        }
+
+        setInterval(gameLoop, 10);
+    </script>
+</body>
+</html>
