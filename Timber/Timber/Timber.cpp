@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <SFML/Graphics.hpp>
+#include <sstream>
 
 // Namespace do SFML
 using namespace sf;
@@ -62,27 +63,40 @@ int main()
     // Inicializa número aleatório
     int number = (rand() % 100);
 
+    // Variável para score
+    int gameScore = 0;
+
     // Variável pra controle de tempo
     Clock clock;
 
+    // Barra de tempo
+    RectangleShape timeBar;
+    float timeBarStartWidth = 400;
+    float timeBarHeight = 80;
+    timeBar.setSize(Vector2f(timeBarStartWidth * scale, timeBarHeight * scale));
+    timeBar.setFillColor(Color::Red);
+    timeBar.setPosition(((1920 / 2) - timeBarStartWidth / 2) * scale, 980 * scale);
+ 
+    Time gameTimeTotal;
+    float timeRemaining = 6.0f;
+    float timeBarWidthPerSecond = timeBarStartWidth / timeRemaining;
+ 
     // Variável de pausa
     bool paused = true;
 
-    // Variável de pontuação
-    int score = 0;
+    // Fonte para o HUD
+    Font mainFont;
+    mainFont.loadFromFile("fonts/KOMIKAP_.ttf");
 
-    // Variáveis de texto
-    // Carregando a fonte
-    Font font;
-    font.loadFromFile("fonts/KOMIKAP_.ttf");
-    sf::Text messageText;
-    messageText.setFont(font);
-    messageText.setString("Press Enter to start!");
+    // Variáveis para texto
+    Text messageText;
+    messageText.setFont(mainFont);
+    messageText.setString("Aperte Enter para jogar!");
     messageText.setCharacterSize(75 * scale);
     messageText.setFillColor(Color::White);
-
-    sf::Text scoreText;
-    scoreText.setFont(font);
+    
+    Text scoreText;
+    scoreText.setFont(mainFont);
     scoreText.setString("Score = 0");
     scoreText.setCharacterSize(100 * scale);
     scoreText.setFillColor(Color::White);
@@ -108,6 +122,8 @@ int main()
         }
         if (Keyboard::isKeyPressed(Keyboard::Return)) {
             paused = false;
+            gameScore = 0;
+            timeRemaining = 5;
         }
 
         // *********************************************
@@ -131,6 +147,21 @@ int main()
             // Implementação considerando o framerate
             // Mede o tempo
             Time dt = clock.restart();
+            gameScore++;
+
+            // Atualiza a contagem de tempo
+            timeRemaining -= dt.asSeconds();
+            timeBar.setSize(Vector2f((timeBarWidthPerSecond * timeRemaining) * scale, timeBarHeight * scale));
+            
+            // Se o tempo esgotar
+            if (timeRemaining <= 0.0f) {
+                paused = true;
+                messageText.setString("Sem tempo, irmao!");
+                FloatRect textRect = messageText.getLocalBounds();
+                messageText.setOrigin(textRect.left + textRect.width / 2.0f,
+                    textRect.top + textRect.height / 2.0f);
+                messageText.setPosition(1920 * scale / 2.0f, 1080 * scale / 2.0f);
+            }
 
             // Se a abelha estiver desativada, posiciona a abelha
             if (!beeActive) {
@@ -177,11 +208,12 @@ int main()
                     }
                 }
             }
-
             // Atualiza a mensagem de score
             std::stringstream ss;
-            ss << "Score = " << score;
+            ss << "Score = " << gameScore;
             scoreText.setString(ss.str());
+            FloatRect textRect = scoreText.getLocalBounds();
+            scoreText.setOrigin(textRect.left + textRect.width, textRect.top);
         }
         // *********************************************
         // DESENHA O FRAME

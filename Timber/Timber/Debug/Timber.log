@@ -1,7 +1,0 @@
-﻿  Timber.cpp
-C:\Users\joaoa\Documents\project-games\Timber\Timber\Timber.cpp(116,43): warning C4244: '=': conversão de 'int' para 'float', possível perda de dados
-C:\Users\joaoa\Documents\project-games\Timber\Timber\Timber.cpp(140,39): warning C4244: '=': conversão de 'int' para 'float', possível perda de dados
-C:\Users\joaoa\Documents\project-games\Timber\Timber\Timber.cpp(159,39): warning C4244: '=': conversão de 'int' para 'float', possível perda de dados
-C:\Users\joaoa\Documents\project-games\Timber\Timber\Timber.cpp(162,30): warning C4244: 'inicializando': conversão de 'int' para 'float', possível perda de dados
-C:\Users\joaoa\Documents\project-games\Timber\Timber\Timber.cpp(178,39): warning C4244: '=': conversão de 'int' para 'float', possível perda de dados
-  Timber.vcxproj -> C:\Users\joaoa\Documents\project-games\Timber\Debug\Timber.exe
