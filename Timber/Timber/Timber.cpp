@@ -13,7 +13,7 @@ int desktopHeight = VideoMode::getDesktopMode().height;
 
 enum class Side {LEFT, RIGHT, NONE};
 
-class Branch {
+/* class Branch {
     Side branchSide;
     Sprite branchSprite;
 
@@ -42,9 +42,9 @@ public:
     Sprite getSprite() {
         return branchSprite;
     }
-};
+};*/
 
-void setupBranches(Branch branches[], Texture texture, int branchAmount, float scale) {
+void setupBranches(Sprite branches[], Texture texture, int branchAmount, float scale) {
     for (int i = 0; i < branchAmount; i++) {
         branches[i].setTexture(texture);
         branches[i].setPosition(500, 500 + (10 * i));
@@ -52,12 +52,37 @@ void setupBranches(Branch branches[], Texture texture, int branchAmount, float s
     }
 }
 
+void updateBranches(Sprite branches[], int branchAmount) {
+    /*// Descer cada galho em um nível
+    for (int i = 0; i < branchAmount; i++) {
+        branches[i + 1].setPosition(branches[i + 1].getPosition().x,
+            branches[i].getPosition().y);
+        sides[i + 1] = sides[i];
+    }*/
+    // Adicionar um novo galho no topo da árvore
+    srand((int)time(0));
+    Side treeSide;
+    int treeSideRand = rand() % 5;
+    switch (treeSideRand) {
+    case 0:
+        treeSide = Side::LEFT;
+        break;
+    case 1:
+        treeSide = Side::RIGHT;
+        break;
+    default:
+        treeSide = Side::NONE;
+    }
+    // sides[branchAmount - 1] = treeSide;
+    branches[branchAmount - 1].setPosition(0, 0);
+}
+
 int main()
 {
     // Criando objeto de modo de vídeo
     int desktopWidth = VideoMode::getDesktopMode().width;
     int desktopHeight = VideoMode::getDesktopMode().height;
-    float scale = (float)desktopWidth / 1920.f;
+    float scale = (float) desktopWidth / 1920.f;
     VideoMode vm(desktopWidth, desktopHeight);
     // Criar e abrir janela para o jogo
     RenderWindow window(vm, "Timber!!!", Style::Fullscreen);
@@ -107,8 +132,18 @@ int main()
     const int BRANCH_AMOUNT = 6;
     Texture textureBranch;
     textureBranch.loadFromFile("graphics/branch.png");
-    Branch branches[BRANCH_AMOUNT];
+
+    Sprite branches[BRANCH_AMOUNT];
     setupBranches(branches, textureBranch, BRANCH_AMOUNT, scale);
+    updateBranches(branches, BRANCH_AMOUNT);
+
+    // Configurações para o lenhador
+    Texture textureLumberjack;
+    textureLumberjack.loadFromFile("graphics/player.png");
+    Sprite spriteLumberjack;
+    spriteLumberjack.setTexture(textureLumberjack);
+    spriteLumberjack.setPosition(spriteTree.getGlobalBounds().left - spriteLumberjack.getGlobalBounds().width,
+        spriteTree.getGlobalBounds().height - spriteLumberjack.getGlobalBounds().height);
     
     // Inicializa número aleatório
     int number = (rand() % 100);
@@ -279,8 +314,10 @@ int main()
         window.draw(spriteBee);
         window.draw(scoreText);
         for (int i = 0; i < BRANCH_AMOUNT; i++) {
-            window.draw(branches[i].getSprite());
+            window.draw(branches[i]);
         }
+        window.draw(spriteLumberjack);
+        window.draw(timeBar);
         if (paused) {
             window.draw(messageText);
         }
