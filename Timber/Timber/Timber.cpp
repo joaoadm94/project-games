@@ -4,10 +4,53 @@
 #include <iostream>
 #include <sstream>
 #include <SFML/Graphics.hpp>
-#include <sstream>
 
 // Namespace do SFML
 using namespace sf;
+
+int desktopWidth = VideoMode::getDesktopMode().width;
+int desktopHeight = VideoMode::getDesktopMode().height;
+
+enum class Side {LEFT, RIGHT, NONE};
+
+class Branch {
+    Side branchSide;
+    Sprite branchSprite;
+
+public:
+    Branch() {
+        branchSide = Side::NONE;
+    }
+    void setSide(Side side) {
+        this->branchSide = side;
+    }
+    void setSprite(Sprite sprite) {
+        this->branchSprite = sprite;
+    }
+    void setTexture(Texture texture) {
+        branchSprite.setTexture(texture);
+    }
+    void setPosition(int x, int y) {
+        branchSprite.setPosition(x, y);
+    }
+    void setScale(double x, double y) {
+        branchSprite.setScale(x, y);
+    }
+    Side getSide() {
+        return branchSide;
+    }
+    Sprite getSprite() {
+        return branchSprite;
+    }
+};
+
+void setupBranches(Branch branches[], Texture texture, int branchAmount, float scale) {
+    for (int i = 0; i < branchAmount; i++) {
+        branches[i].setTexture(texture);
+        branches[i].setPosition(500, 500 + (10 * i));
+        branches[i].setScale(scale, scale);
+    }
+}
 
 int main()
 {
@@ -58,7 +101,14 @@ int main()
         spriteCloud[i].setScale(scale, scale);
         cloudActive[i] = false;
         cloudSpeed[i] = 0.0f;
-    } 
+    }
+
+    // Configurações para os galhos
+    const int BRANCH_AMOUNT = 6;
+    Texture textureBranch;
+    textureBranch.loadFromFile("graphics/branch.png");
+    Branch branches[BRANCH_AMOUNT];
+    setupBranches(branches, textureBranch, BRANCH_AMOUNT, scale);
     
     // Inicializa número aleatório
     int number = (rand() % 100);
@@ -228,6 +278,9 @@ int main()
         window.draw(spriteTree);
         window.draw(spriteBee);
         window.draw(scoreText);
+        for (int i = 0; i < BRANCH_AMOUNT; i++) {
+            window.draw(branches[i].getSprite());
+        }
         if (paused) {
             window.draw(messageText);
         }
