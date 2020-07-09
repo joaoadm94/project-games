@@ -7,10 +7,6 @@
 
 // Namespace do SFML
 using namespace sf;
-
-int desktopWidth = VideoMode::getDesktopMode().width;
-int desktopHeight = VideoMode::getDesktopMode().height;
-
 enum class Side {LEFT, RIGHT, NONE};
 
 /* class Branch {
@@ -133,11 +129,13 @@ int main()
     Texture textureBranch;
     textureBranch.loadFromFile("graphics/branch.png");
 
+    Side branchSides[BRANCH_AMOUNT];
     Sprite branches[BRANCH_AMOUNT];
     for (int i = 0; i < BRANCH_AMOUNT; i++) {
         branches[i].setTexture(textureBranch);
         branches[i].setPosition(desktopWidth/2, 0);
         branches[i].setScale(scale, scale);
+        branchSides[i] = Side::NONE;
     }
     // setupBranches(branches, textureBranch, BRANCH_AMOUNT, scale);
     // updateBranches(branches, BRANCH_AMOUNT);
@@ -147,8 +145,11 @@ int main()
     textureLumberjack.loadFromFile("graphics/player.png");
     Sprite spriteLumberjack;
     spriteLumberjack.setTexture(textureLumberjack);
-    spriteLumberjack.setPosition(spriteTree.getGlobalBounds().left - spriteLumberjack.getGlobalBounds().width,
-        spriteTree.getGlobalBounds().height - spriteLumberjack.getGlobalBounds().height);
+    int spriteLumberjackLeftX, spriteLumberjackRightX, spriteLumberjackY;
+    spriteLumberjackLeftX = spriteTree.getGlobalBounds().left - spriteLumberjack.getGlobalBounds().width;
+    spriteLumberjackRightX = spriteTree.getGlobalBounds().left + spriteTree.getGlobalBounds().width;
+    spriteLumberjackY = spriteTree.getGlobalBounds().height - spriteLumberjack.getGlobalBounds().height;
+    spriteLumberjack.setPosition(spriteLumberjackLeftX, spriteLumberjackY);
     
     // Inicializa número aleatório
     int number = (rand() % 100);
@@ -201,7 +202,6 @@ int main()
     float scoreWidthOffset = 0.65f;
     float scoreHeightOffset = 0.03f;
     scoreText.setPosition(desktopWidth * scoreWidthOffset, desktopHeight * scoreHeightOffset);
-    
 
     while (window.isOpen()) {
         // *********************************************
@@ -252,6 +252,8 @@ int main()
                     textRect.top + textRect.height / 2.0f);
                 messageText.setPosition(1920 * scale / 2.0f, 1080 * scale / 2.0f);
             }
+
+            //
 
             // Se a abelha estiver desativada, posiciona a abelha
             if (!beeActive) {
@@ -308,8 +310,10 @@ int main()
         // *********************************************
         // DESENHA O FRAME
         // *********************************************
+
         // Limpa o último frame
         window.clear();
+
         // Desenha cada item da cena
         window.draw(spriteBackground);
         for (int i = 0; i < cloudsAmount; i++) {
@@ -319,7 +323,9 @@ int main()
         window.draw(spriteBee);
         window.draw(scoreText);
         for (int i = 0; i < BRANCH_AMOUNT; i++) {
-            window.draw(branches[i]);
+            if (branchSides[i] != Side::NONE) {
+                window.draw(branches[i]);
+            }
         }
         window.draw(spriteLumberjack);
         window.draw(timeBar);
