@@ -134,8 +134,13 @@ int main()
     textureBranch.loadFromFile("graphics/branch.png");
 
     Sprite branches[BRANCH_AMOUNT];
-    setupBranches(branches, textureBranch, BRANCH_AMOUNT, scale);
-    updateBranches(branches, BRANCH_AMOUNT);
+    for (int i = 0; i < BRANCH_AMOUNT; i++) {
+        branches[i].setTexture(textureBranch);
+        branches[i].setPosition(desktopWidth/2, 0);
+        branches[i].setScale(scale, scale);
+    }
+    // setupBranches(branches, textureBranch, BRANCH_AMOUNT, scale);
+    // updateBranches(branches, BRANCH_AMOUNT);
 
     // Configurações para o lenhador
     Texture textureLumberjack;
