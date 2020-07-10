@@ -8,69 +8,39 @@
 // Namespace do SFML
 using namespace sf;
 enum class Side {LEFT, RIGHT, NONE};
+int branchLeftX, branchRightX;
 
-/* class Branch {
-    Side branchSide;
-    Sprite branchSprite;
-
-public:
-    Branch() {
-        branchSide = Side::NONE;
+void updateBranches(Sprite sprites[], Side sides[], int branchAmount) {
+    // Descer cada galho em um nível
+    for (int i = branchAmount - 2; i >= 0; i--) {
+        sides[i+1] = sides[i];
     }
-    void setSide(Side side) {
-        this->branchSide = side;
-    }
-    void setSprite(Sprite sprite) {
-        this->branchSprite = sprite;
-    }
-    void setTexture(Texture texture) {
-        branchSprite.setTexture(texture);
-    }
-    void setPosition(int x, int y) {
-        branchSprite.setPosition(x, y);
-    }
-    void setScale(double x, double y) {
-        branchSprite.setScale(x, y);
-    }
-    Side getSide() {
-        return branchSide;
-    }
-    Sprite getSprite() {
-        return branchSprite;
-    }
-};*/
-
-void setupBranches(Sprite branches[], Texture texture, int branchAmount, float scale) {
-    for (int i = 0; i < branchAmount; i++) {
-        branches[i].setTexture(texture);
-        branches[i].setPosition(500, 500 + (10 * i));
-        branches[i].setScale(scale, scale);
-    }
-}
-
-void updateBranches(Sprite branches[], int branchAmount) {
-    /*// Descer cada galho em um nível
-    for (int i = 0; i < branchAmount; i++) {
-        branches[i + 1].setPosition(branches[i + 1].getPosition().x,
-            branches[i].getPosition().y);
-        sides[i + 1] = sides[i];
-    }*/
     // Adicionar um novo galho no topo da árvore
     srand((int)time(0));
-    Side treeSide;
-    int treeSideRand = rand() % 5;
+    int treeSideRand = (rand() % 5);
     switch (treeSideRand) {
-    case 0:
-        treeSide = Side::LEFT;
-        break;
-    case 1:
-        treeSide = Side::RIGHT;
-        break;
-    default:
-        treeSide = Side::NONE;
+        case 0:
+            sides[0] = Side::LEFT;
+            break;
+        case 1:
+            sides[0] = Side::RIGHT;
+            break;
+        default:
+            sides[0] = Side::NONE;
     }
-    // sides[branchAmount - 1] = treeSide;
-    branches[branchAmount - 1].setPosition(0, 0);
+    for (int i = 0; i < branchAmount; i++) {
+        if (sides[i] == Side::LEFT) {
+            sprites[i].setRotation(180);
+            sprites[i].setPosition(branchLeftX, sprites[i].getGlobalBounds().top);
+        }
+        else if (sides[i] == Side::RIGHT) {
+            sprites[i].setRotation(0);
+            sprites[i].setPosition(branchRightX, sprites[i].getGlobalBounds().top);
+        }
+        else {
+            sprites[i].setPosition(-500, sprites[i].getGlobalBounds().top);
+        }
+    }
 }
 
 int main()
@@ -95,8 +65,8 @@ int main()
     textureTree.loadFromFile("graphics/tree.png");
     Sprite spriteTree;
     spriteTree.setTexture(textureTree);
-    spriteTree.setPosition(810 * scale, 0);
     spriteTree.setScale(scale, scale);
+    spriteTree.setPosition((desktopWidth - spriteTree.getGlobalBounds().width)/2, 0);
 
     // Configurações da abelha
     Texture textureBee;
@@ -124,33 +94,39 @@ int main()
         cloudSpeed[i] = 0.0f;
     }
 
-    // Configurações para os galhos
-    const int BRANCH_AMOUNT = 6;
-    Texture textureBranch;
-    textureBranch.loadFromFile("graphics/branch.png");
-
-    Side branchSides[BRANCH_AMOUNT];
-    Sprite branches[BRANCH_AMOUNT];
-    for (int i = 0; i < BRANCH_AMOUNT; i++) {
-        branches[i].setTexture(textureBranch);
-        branches[i].setPosition(desktopWidth/2, 0);
-        branches[i].setScale(scale, scale);
-        branchSides[i] = Side::NONE;
-    }
-    // setupBranches(branches, textureBranch, BRANCH_AMOUNT, scale);
-    // updateBranches(branches, BRANCH_AMOUNT);
-
     // Configurações para o lenhador
     Texture textureLumberjack;
     textureLumberjack.loadFromFile("graphics/player.png");
+    Side sideLumberjack = Side::LEFT;
     Sprite spriteLumberjack;
     spriteLumberjack.setTexture(textureLumberjack);
+    spriteLumberjack.setScale(scale, scale);
     int spriteLumberjackLeftX, spriteLumberjackRightX, spriteLumberjackY;
     spriteLumberjackLeftX = spriteTree.getGlobalBounds().left - spriteLumberjack.getGlobalBounds().width;
     spriteLumberjackRightX = spriteTree.getGlobalBounds().left + spriteTree.getGlobalBounds().width;
     spriteLumberjackY = spriteTree.getGlobalBounds().height - spriteLumberjack.getGlobalBounds().height;
     spriteLumberjack.setPosition(spriteLumberjackLeftX, spriteLumberjackY);
-    
+
+    // Configurações para os galhos
+    const int BRANCH_AMOUNT = 6;
+    Texture textureBranch;
+    textureBranch.loadFromFile("graphics/branch.png");
+    int branchSpace;
+    branchSpace = spriteTree.getGlobalBounds().height;
+    Side branchSides[BRANCH_AMOUNT];
+    Sprite spriteBranches[BRANCH_AMOUNT];
+    for (int i = 0; i < BRANCH_AMOUNT; i++) {
+        spriteBranches[i].setTexture(textureBranch);
+        spriteBranches[i].setPosition(0, i * (branchSpace/BRANCH_AMOUNT));
+        spriteBranches[i].setScale(scale, scale);
+        branchSides[i] = Side::NONE;
+    }
+    int branchLeftX = spriteTree.getGlobalBounds().left - spriteBranches[1].getGlobalBounds().width;
+    int branchRightX = spriteTree.getGlobalBounds().left + spriteTree.getGlobalBounds().width;
+    //deletar essa variável depois
+    bool update = true;
+    Time elapsed;
+
     // Inicializa número aleatório
     int number = (rand() % 100);
 
@@ -159,6 +135,7 @@ int main()
 
     // Variável pra controle de tempo
     Clock clock;
+    Clock updateClock;
 
     // Barra de tempo
     RectangleShape timeBar;
@@ -174,6 +151,7 @@ int main()
  
     // Variável de pausa
     bool paused = true;
+    bool hit = false;
 
     // Fonte para o HUD
     Font mainFont;
@@ -215,6 +193,14 @@ int main()
             gameScore = 0;
             timeRemaining = 5;
         }
+        if (Keyboard::isKeyPressed(Keyboard::Left)) {
+            sideLumberjack = Side::LEFT;
+            hit = true;
+        }
+        if (Keyboard::isKeyPressed(Keyboard::Right)) {
+            sideLumberjack = Side::RIGHT;
+            hit = true;
+        }
 
         // *********************************************
         // ATUALIZA A CENA
@@ -237,8 +223,11 @@ int main()
             // Implementação considerando o framerate
             // Mede o tempo
             Time dt = clock.restart();
-            gameScore++;
-
+            if (updateClock.getElapsedTime().asSeconds() >= 2.0f) {
+                updateBranches(spriteBranches, branchSides, BRANCH_AMOUNT);
+                updateClock.restart();
+            }
+            
             // Atualiza a contagem de tempo
             timeRemaining -= dt.asSeconds();
             timeBar.setSize(Vector2f((timeBarWidthPerSecond * timeRemaining) * scale, timeBarHeight * scale));
@@ -252,9 +241,24 @@ int main()
                     textRect.top + textRect.height / 2.0f);
                 messageText.setPosition(1920 * scale / 2.0f, 1080 * scale / 2.0f);
             }
-
-            //
-
+            
+            // Atualiza posicao do jogador
+            if (sideLumberjack == Side::LEFT) {
+                spriteLumberjack.setPosition(spriteLumberjackLeftX, spriteLumberjackY);
+            } 
+            else {
+                spriteLumberjack.setPosition(spriteLumberjackRightX, spriteLumberjackY);
+            }
+            /*
+            // Atualiza posição dos galhos
+            if (hit) {
+                updateBranches(spriteBranches, branchSides, BRANCH_AMOUNT);
+                hit = false;
+            }
+            if (sideLumberjack == branchSides[0]) {
+                paused = true;
+            }
+            */
             // Se a abelha estiver desativada, posiciona a abelha
             if (!beeActive) {
                 // Determina a velocidade da abelha
@@ -324,7 +328,7 @@ int main()
         window.draw(scoreText);
         for (int i = 0; i < BRANCH_AMOUNT; i++) {
             if (branchSides[i] != Side::NONE) {
-                window.draw(branches[i]);
+                window.draw(spriteBranches[i]);
             }
         }
         window.draw(spriteLumberjack);
