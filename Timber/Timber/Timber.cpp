@@ -207,7 +207,7 @@ int main()
         if (Keyboard::isKeyPressed(Keyboard::Return)) {
             paused = false;
             gameScore = 0;
-            timeRemaining = 5;
+            timeRemaining = 6;
         }
         if (Keyboard::isKeyPressed(Keyboard::Left)) {
             sideLumberjack = Side::LEFT;
@@ -242,7 +242,7 @@ int main()
             
             // Atualiza a contagem de tempo
             timeRemaining -= dt.asSeconds();
-            timeBar.setSize(Vector2f((timeBarWidthPerSecond * timeRemaining) * scale, timeBarHeight * scale));
+            timeBar.setSize(Vector2f(timeBarWidthPerSecond * timeRemaining * scale, timeBarHeight * scale));
             
             // Se o tempo esgotar
             if (timeRemaining <= 0.0f) {
