@@ -140,6 +140,20 @@ int main()
     spriteAxe.setPosition(0, 0);
 
     // Configurações para a lápide
+    Texture textureRip;
+    textureRip.loadFromFile("graphics/rip.png");
+    Sprite spriteRip;
+    spriteRip.setTexture(textureRip);
+    spriteRip.setScale(scale, scale);
+    spriteRip.setPosition(100, 0);
+
+    //Configurações para a tora
+    Texture textureLog;
+    textureLog.loadFromFile("graphics/log.png");
+    Sprite spriteLog;
+    spriteLog.setTexture(textureLog);
+    spriteLog.setScale(scale, scale);
+    spriteLog.setPosition(200, 0);
  
     Time elapsed;
 
@@ -162,7 +176,7 @@ int main()
     timeBar.setPosition(((1920 / 2) - timeBarStartWidth / 2) * scale, 980 * scale);
  
     Time gameTimeTotal;
-    float timeRemaining = 6.0f;
+    float timeRemaining = 5.0f;
     float timeBarWidthPerSecond = timeBarStartWidth / timeRemaining;
  
     // Variável de pausa
@@ -207,7 +221,7 @@ int main()
         if (Keyboard::isKeyPressed(Keyboard::Return)) {
             paused = false;
             gameScore = 0;
-            timeRemaining = 6;
+            timeRemaining = 5;
         }
         if (Keyboard::isKeyPressed(Keyboard::Left)) {
             sideLumberjack = Side::LEFT;
@@ -332,6 +346,9 @@ int main()
             window.draw(spriteBranches[i]);
         }
         window.draw(spriteLumberjack);
+        window.draw(spriteRip);
+        window.draw(spriteLog);
+        window.draw(spriteAxe);
         window.draw(timeBar);
         if (paused) {
             window.draw(messageText);
