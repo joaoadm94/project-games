@@ -66,14 +66,18 @@ int main()
     Sprite spriteTree;
     spriteTree.setTexture(textureTree);
     spriteTree.setScale(scale, scale);
-    spriteTree.setPosition((desktopWidth - spriteTree.getGlobalBounds().width)/2, 0);
+    int spriteTreeWidth = spriteTree.getGlobalBounds().width;
+    int spriteTreeHeight = spriteTree.getGlobalBounds().height;
+    spriteTree.setPosition((desktopWidth - spriteTreeWidth)/2, 0);
+    int spriteTreeLeft = spriteTree.getGlobalBounds().left;
+
 
     // Configurações da abelha
     Texture textureBee;
     textureBee.loadFromFile("graphics/bee.png");
     Sprite spriteBee;
     spriteBee.setTexture(textureBee);
-    spriteBee.setPosition(0, 800 * scale);
+    spriteBee.setPosition(-1000, 800 * scale);
     spriteBee.setScale(scale, scale);
     bool beeActive = false;
     float beeSpeed = 0.0f;
@@ -82,13 +86,12 @@ int main()
     const int cloudsAmount = 3;
     Texture textureCloud;
     textureCloud.loadFromFile("graphics/cloud.png");
-
     Sprite spriteCloud[cloudsAmount];
     bool cloudActive[cloudsAmount];
     float cloudSpeed[cloudsAmount];
     for (int i = 0; i < cloudsAmount; i++) {
         spriteCloud[i].setTexture(textureCloud);
-        spriteCloud[i].setPosition(0, 160 * scale * i);
+        spriteCloud[i].setPosition(-1000, 160 * scale * i);
         spriteCloud[i].setScale(scale, scale);
         cloudActive[i] = false;
         cloudSpeed[i] = 0.0f;
@@ -101,10 +104,11 @@ int main()
     Sprite spriteLumberjack;
     spriteLumberjack.setTexture(textureLumberjack);
     spriteLumberjack.setScale(scale, scale);
-    int spriteLumberjackLeftX, spriteLumberjackRightX, spriteLumberjackY;
-    spriteLumberjackLeftX = spriteTree.getGlobalBounds().left - spriteLumberjack.getGlobalBounds().width;
-    spriteLumberjackRightX = spriteTree.getGlobalBounds().left + spriteTree.getGlobalBounds().width;
-    spriteLumberjackY = spriteTree.getGlobalBounds().height - spriteLumberjack.getGlobalBounds().height;
+    int spriteLumberjackWidth = spriteLumberjack.getGlobalBounds().width;
+    int spriteLumberjackHeight = spriteLumberjack.getGlobalBounds().height;
+    int spriteLumberjackLeftX = spriteTreeLeft - spriteLumberjackWidth;
+    int spriteLumberjackRightX = spriteTreeLeft + spriteTreeWidth;
+    int spriteLumberjackY = spriteTreeHeight - spriteLumberjackHeight;
     spriteLumberjack.setPosition(spriteLumberjackLeftX, spriteLumberjackY);
 
     // Configurações para os galhos
@@ -113,19 +117,30 @@ int main()
     textureBranch.loadFromFile("graphics/branch.png");
     int branchSpace;
     branchSpace = spriteTree.getGlobalBounds().height;
-    Side branchSides[BRANCH_AMOUNT];
+    Side sidesBranch[BRANCH_AMOUNT];
     Sprite spriteBranches[BRANCH_AMOUNT];
+    int spriteBranchWidth = spriteBranches[0].getGlobalBounds().width;
+    int spriteBranchHeight = spriteBranches[0].getGlobalBounds().height;
     for (int i = 0; i < BRANCH_AMOUNT; i++) {
         spriteBranches[i].setTexture(textureBranch);
-        spriteBranches[i].setPosition(0, i * (branchSpace/BRANCH_AMOUNT));
-        spriteBranches[i].setOrigin(spriteBranches[i].getGlobalBounds().width/2, spriteBranches[i].getGlobalBounds().height/2);
+        spriteBranches[i].setPosition(-1000, i * (branchSpace/BRANCH_AMOUNT));
+        spriteBranches[i].setOrigin(spriteBranchWidth/2, spriteBranchHeight/2);
         spriteBranches[i].setScale(scale, scale);
-        branchSides[i] = Side::NONE;
+        sidesBranch[i] = Side::NONE;
     }
-    branchLeftX = spriteTree.getGlobalBounds().left - (spriteBranches[1].getGlobalBounds().width/2);
-    branchRightX = spriteTree.getGlobalBounds().left + spriteTree.getGlobalBounds().width + spriteBranches[1].getGlobalBounds().width/2;
-    //deletar essa variável depois
-    bool update = true;
+    branchLeftX = spriteTreeLeft - (spriteBranchWidth/2);
+    branchRightX = spriteTreeLeft + spriteTreeWidth + spriteBranchWidth/2;
+
+    // Configurações para o machado
+    Texture textureAxe;
+    textureAxe.loadFromFile("graphics/axe.png");
+    Sprite spriteAxe;
+    spriteAxe.setTexture(textureAxe);
+    spriteAxe.setScale(scale, scale);
+    spriteAxe.setPosition(0, 0);
+
+    // Configurações para a lápide
+ 
     Time elapsed;
 
     // Inicializa número aleatório
@@ -224,10 +239,6 @@ int main()
             // Implementação considerando o framerate
             // Mede o tempo
             Time dt = clock.restart();
-            if (updateClock.getElapsedTime().asSeconds() >= 0.5f) {
-                updateBranches(spriteBranches, branchSides, BRANCH_AMOUNT);
-                updateClock.restart();
-            }
             
             // Atualiza a contagem de tempo
             timeRemaining -= dt.asSeconds();
@@ -250,16 +261,6 @@ int main()
             else {
                 spriteLumberjack.setPosition(spriteLumberjackRightX, spriteLumberjackY);
             }
-            /*
-            // Atualiza posição dos galhos
-            if (hit) {
-                updateBranches(spriteBranches, branchSides, BRANCH_AMOUNT);
-                hit = false;
-            }
-            if (sideLumberjack == branchSides[0]) {
-                paused = true;
-            }
-            */
             // Se a abelha estiver desativada, posiciona a abelha
             if (!beeActive) {
                 // Determina a velocidade da abelha
