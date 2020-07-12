@@ -118,11 +118,12 @@ int main()
     for (int i = 0; i < BRANCH_AMOUNT; i++) {
         spriteBranches[i].setTexture(textureBranch);
         spriteBranches[i].setPosition(0, i * (branchSpace/BRANCH_AMOUNT));
+        spriteBranches[i].setOrigin(spriteBranches[i].getGlobalBounds().width/2, spriteBranches[i].getGlobalBounds().height/2);
         spriteBranches[i].setScale(scale, scale);
         branchSides[i] = Side::NONE;
     }
-    int branchLeftX = spriteTree.getGlobalBounds().left - spriteBranches[1].getGlobalBounds().width;
-    int branchRightX = spriteTree.getGlobalBounds().left + spriteTree.getGlobalBounds().width;
+    branchLeftX = spriteTree.getGlobalBounds().left - (spriteBranches[1].getGlobalBounds().width/2);
+    branchRightX = spriteTree.getGlobalBounds().left + spriteTree.getGlobalBounds().width + spriteBranches[1].getGlobalBounds().width/2;
     //deletar essa variável depois
     bool update = true;
     Time elapsed;
@@ -223,7 +224,7 @@ int main()
             // Implementação considerando o framerate
             // Mede o tempo
             Time dt = clock.restart();
-            if (updateClock.getElapsedTime().asSeconds() >= 2.0f) {
+            if (updateClock.getElapsedTime().asSeconds() >= 0.5f) {
                 updateBranches(spriteBranches, branchSides, BRANCH_AMOUNT);
                 updateClock.restart();
             }
@@ -327,9 +328,7 @@ int main()
         window.draw(spriteBee);
         window.draw(scoreText);
         for (int i = 0; i < BRANCH_AMOUNT; i++) {
-            if (branchSides[i] != Side::NONE) {
-                window.draw(spriteBranches[i]);
-            }
+            window.draw(spriteBranches[i]);
         }
         window.draw(spriteLumberjack);
         window.draw(timeBar);
