@@ -112,11 +112,11 @@ int main()
     spriteLumberjack.setPosition(spriteLumberjackLeftX, spriteLumberjackY);
 
     // Configurações para os galhos
-    const int BRANCH_AMOUNT = 6;
+    const int BRANCH_AMOUNT = 5;
     Texture textureBranch;
     textureBranch.loadFromFile("graphics/branch.png");
     int branchSpace;
-    branchSpace = spriteTree.getGlobalBounds().height;
+    branchSpace = spriteTreeHeight - spriteLumberjackHeight/2;
     Side sidesBranch[BRANCH_AMOUNT];
     Sprite spriteBranches[BRANCH_AMOUNT];
     spriteBranches[0].setTexture(textureBranch);
@@ -132,14 +132,14 @@ int main()
         spriteBranches[i].setTexture(textureBranch);
         spriteBranches[i].setScale(scale, scale);
         spriteBranches[i].setPosition(-1000, i * (branchSpace/BRANCH_AMOUNT));
-        spriteBranches[i].setOrigin(spriteBranchWidth/2, spriteBranchHeight/2);
+        spriteBranches[i].setOrigin(spriteBranches[0].getLocalBounds().width/2, spriteBranches[0].getLocalBounds().height/2);
         sidesBranch[i] = Side::NONE;
     }
     sidesBranch[0] = Side::LEFT;
     sidesBranch[1] = Side::RIGHT;
     sidesBranch[2] = Side::RIGHT;
     branchLeftX = spriteTreeLeft - (spriteBranchWidth/2);
-    branchRightX = spriteTreeLeft + spriteTreeWidth + spriteBranchWidth/2;
+    branchRightX = spriteTreeLeft + spriteTreeWidth + (spriteBranchWidth/2);
     updateBranches(spriteBranches, sidesBranch, BRANCH_AMOUNT, 0);
 
     // Configurações para o machado
@@ -192,6 +192,7 @@ int main()
     timeBar.setPosition(((1920 / 2) - timeBarStartWidth / 2) * scale, 980 * scale);
  
     Time gameTimeTotal;
+    const float totalTime = 5.0f;
     float timeRemaining = 5.0f;
     float timeBarWidthPerSecond = timeBarStartWidth / timeRemaining;
  
@@ -248,13 +249,16 @@ int main()
         if (Keyboard::isKeyPressed(Keyboard::Return)) {
             paused = false;
             gameScore = 0;
-            timeRemaining = 5;
+            timeRemaining = 5.0f;
         }
         if (acceptInput) {
             if (Keyboard::isKeyPressed(Keyboard::Left)) {
                 sideLumberjack = Side::LEFT;
                 gameScore++;
                 timeRemaining += (2 / gameScore) + .15;
+                if (timeRemaining >= 5.0f) {
+                    timeRemaining = 5.0f;
+                }
                 acceptInput = false;
                 hit = true;
             }
@@ -262,6 +266,9 @@ int main()
                 sideLumberjack = Side::RIGHT;
                 gameScore++;
                 timeRemaining += (2 / gameScore) + .15;
+                if (timeRemaining >= 5.0f) {
+                    timeRemaining = 5.0f;
+                }
                 acceptInput = false;
                 hit = true;
             }
@@ -288,10 +295,14 @@ int main()
             // Implementação considerando o framerate
             // Mede o tempo
             Time dt = clock.restart();
+
+            if (hit && sideLumberjack == sidesBranch[BRANCH_AMOUNT - 1]) {
+                paused = true;
+            }
             
             // Atualiza a contagem de tempo
-            // timeRemaining -= dt.asSeconds();
-            // timeBar.setSize(Vector2f(timeBarWidthPerSecond * timeRemaining * scale, timeBarHeight * scale));
+            timeRemaining -= dt.asSeconds();
+            timeBar.setSize(Vector2f(timeBarWidthPerSecond * timeRemaining * scale, timeBarHeight * scale));
             
             // Se o tempo esgotar
             if (timeRemaining <= 0.0f) {
