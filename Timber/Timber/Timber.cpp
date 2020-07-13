@@ -135,9 +135,12 @@ int main()
     Texture textureAxe;
     textureAxe.loadFromFile("graphics/axe.png");
     Sprite spriteAxe;
+    int spriteAxeLeftX = spriteLumberjackLeftX + (spriteLumberjackWidth / 2);
+    int spriteAxeRightX = spriteTreeLeft + 3*(spriteTreeWidth/4);
+    int spriteAxeY = spriteLumberjackY + (spriteLumberjackHeight / 2);
     spriteAxe.setTexture(textureAxe);
     spriteAxe.setScale(scale, scale);
-    spriteAxe.setPosition(spriteLumberjackLeftX + (spriteLumberjackWidth/2), spriteLumberjackY + (spriteLumberjackHeight/2));
+    spriteAxe.setPosition(spriteAxeLeftX, spriteAxeY);
 
     // Configurações para a lápide
     Texture textureRip;
@@ -271,9 +274,11 @@ int main()
             // Atualiza posicao do jogador
             if (sideLumberjack == Side::LEFT) {
                 spriteLumberjack.setPosition(spriteLumberjackLeftX, spriteLumberjackY);
+                spriteAxe.setPosition(spriteAxeLeftX, spriteAxeY);
             } 
             else {
                 spriteLumberjack.setPosition(spriteLumberjackRightX, spriteLumberjackY);
+                spriteAxe.setPosition(spriteAxeRightX, spriteAxeY);
             }
             // Se a abelha estiver desativada, posiciona a abelha
             if (!beeActive) {
