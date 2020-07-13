@@ -12,8 +12,8 @@ int branchLeftX, branchRightX;
 
 void updateBranches(Sprite sprites[], Side sides[], int branchAmount, int seed) {
     // Descer cada galho em um nível
-    for (int i = branchAmount - 2; i >= 0; i--) {
-        sides[i+1] = sides[i];
+    for (int i = branchAmount - 1; i > 0; i--) {
+        sides[i] = sides[i - 1];
     }
     // Adicionar um novo galho no topo da árvore
     srand((int)time(0) + seed);
@@ -31,14 +31,14 @@ void updateBranches(Sprite sprites[], Side sides[], int branchAmount, int seed) 
     for (int i = 0; i < branchAmount; i++) {
         if (sides[i] == Side::LEFT) {
             sprites[i].setRotation(180);
-            sprites[i].setPosition(branchLeftX, sprites[i].getGlobalBounds().top);
+            sprites[i].setPosition(branchLeftX, sprites[i].getPosition().y);
         }
         else if (sides[i] == Side::RIGHT) {
             sprites[i].setRotation(0);
-            sprites[i].setPosition(branchRightX, sprites[i].getGlobalBounds().top);
+            sprites[i].setPosition(branchRightX, sprites[i].getPosition().y);
         }
         else {
-            sprites[i].setPosition(-500, sprites[i].getGlobalBounds().top);
+            sprites[i].setPosition(-500, sprites[i].getPosition().y);
         }
     }
 }
@@ -119,6 +119,8 @@ int main()
     branchSpace = spriteTree.getGlobalBounds().height;
     Side sidesBranch[BRANCH_AMOUNT];
     Sprite spriteBranches[BRANCH_AMOUNT];
+    spriteBranches[0].setTexture(textureBranch);
+    spriteBranches[0].setScale(scale, scale);
     int spriteBranchWidth = spriteBranches[0].getGlobalBounds().width;
     int spriteBranchHeight = spriteBranches[0].getGlobalBounds().height;
 
@@ -128,9 +130,9 @@ int main()
     // e o galho[n] o mais baixo.
     for (int i = 0; i < BRANCH_AMOUNT; i++) {
         spriteBranches[i].setTexture(textureBranch);
+        spriteBranches[i].setScale(scale, scale);
         spriteBranches[i].setPosition(-1000, i * (branchSpace/BRANCH_AMOUNT));
         spriteBranches[i].setOrigin(spriteBranchWidth/2, spriteBranchHeight/2);
-        spriteBranches[i].setScale(scale, scale);
         sidesBranch[i] = Side::NONE;
     }
     sidesBranch[0] = Side::LEFT;
@@ -254,12 +256,14 @@ int main()
                 gameScore++;
                 timeRemaining += (2 / gameScore) + .15;
                 acceptInput = false;
+                hit = true;
             }
             if (Keyboard::isKeyPressed(Keyboard::Right)) {
                 sideLumberjack = Side::RIGHT;
                 gameScore++;
                 timeRemaining += (2 / gameScore) + .15;
                 acceptInput = false;
+                hit = true;
             }
         }
 
@@ -286,8 +290,8 @@ int main()
             Time dt = clock.restart();
             
             // Atualiza a contagem de tempo
-            timeRemaining -= dt.asSeconds();
-            timeBar.setSize(Vector2f(timeBarWidthPerSecond * timeRemaining * scale, timeBarHeight * scale));
+            // timeRemaining -= dt.asSeconds();
+            // timeBar.setSize(Vector2f(timeBarWidthPerSecond * timeRemaining * scale, timeBarHeight * scale));
             
             // Se o tempo esgotar
             if (timeRemaining <= 0.0f) {
@@ -300,16 +304,18 @@ int main()
             }
             
             // Atualiza posicao do jogador
-            if (!acceptInput) {
+            if (hit) {
                 if (sideLumberjack == Side::LEFT) {
                     spriteLumberjack.setPosition(spriteLumberjackLeftX, spriteLumberjackY);
                     spriteAxe.setPosition(spriteAxeLeftX, spriteAxeY);
                     updateBranches(spriteBranches, sidesBranch, BRANCH_AMOUNT, gameScore);
+                    hit = false;
                 } 
                 else {
                     spriteLumberjack.setPosition(spriteLumberjackRightX, spriteLumberjackY);
                     spriteAxe.setPosition(spriteAxeRightX, spriteAxeY);
                     updateBranches(spriteBranches, sidesBranch, BRANCH_AMOUNT, gameScore);
+                    hit = false;
                 }
             }
             // Se a abelha estiver desativada, posiciona a abelha
