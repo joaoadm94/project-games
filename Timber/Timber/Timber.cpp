@@ -10,13 +10,13 @@ using namespace sf;
 enum class Side {LEFT, RIGHT, NONE};
 int branchLeftX, branchRightX;
 
-void updateBranches(Sprite sprites[], Side sides[], int branchAmount) {
+void updateBranches(Sprite sprites[], Side sides[], int branchAmount, int seed) {
     // Descer cada galho em um nível
     for (int i = branchAmount - 2; i >= 0; i--) {
         sides[i+1] = sides[i];
     }
     // Adicionar um novo galho no topo da árvore
-    srand((int)time(0));
+    srand((int)time(0) + seed);
     int treeSideRand = (rand() % 5);
     switch (treeSideRand) {
         case 0:
@@ -121,6 +121,11 @@ int main()
     Sprite spriteBranches[BRANCH_AMOUNT];
     int spriteBranchWidth = spriteBranches[0].getGlobalBounds().width;
     int spriteBranchHeight = spriteBranches[0].getGlobalBounds().height;
+
+    // Atribui as configuracoes iniciais para os galhos
+    // A altura dos galhos e calculada dividindo o espaco disponivel
+    // na arvore pela quantidade de galhos, sendo o galho[0] o mais alto
+    // e o galho[n] o mais baixo.
     for (int i = 0; i < BRANCH_AMOUNT; i++) {
         spriteBranches[i].setTexture(textureBranch);
         spriteBranches[i].setPosition(-1000, i * (branchSpace/BRANCH_AMOUNT));
@@ -128,8 +133,12 @@ int main()
         spriteBranches[i].setScale(scale, scale);
         sidesBranch[i] = Side::NONE;
     }
+    sidesBranch[0] = Side::LEFT;
+    sidesBranch[1] = Side::RIGHT;
+    sidesBranch[2] = Side::RIGHT;
     branchLeftX = spriteTreeLeft - (spriteBranchWidth/2);
     branchRightX = spriteTreeLeft + spriteTreeWidth + spriteBranchWidth/2;
+    updateBranches(spriteBranches, sidesBranch, BRANCH_AMOUNT, 0);
 
     // Configurações para o machado
     Texture textureAxe;
@@ -140,7 +149,7 @@ int main()
     int spriteAxeY = spriteLumberjackY + (spriteLumberjackHeight / 2);
     spriteAxe.setTexture(textureAxe);
     spriteAxe.setScale(scale, scale);
-    spriteAxe.setPosition(spriteAxeLeftX, spriteAxeY);
+    spriteAxe.setPosition(-1000, spriteAxeY);
 
     // Configurações para a lápide
     Texture textureRip;
@@ -148,7 +157,8 @@ int main()
     Sprite spriteRip;
     spriteRip.setTexture(textureRip);
     spriteRip.setScale(scale, scale);
-    spriteRip.setPosition(100, 0);
+    spriteRip.setOrigin(0, spriteRip.getGlobalBounds().height);
+    spriteRip.setPosition(-1000, spriteTreeHeight - 20);
 
     //Configurações para a tora
     Texture textureLog;
@@ -156,7 +166,8 @@ int main()
     Sprite spriteLog;
     spriteLog.setTexture(textureLog);
     spriteLog.setScale(scale, scale);
-    spriteLog.setPosition(200, 0);
+    int spriteLogHeight = spriteLog.getGlobalBounds().height;
+    spriteLog.setPosition(spriteTreeLeft, spriteTreeHeight - spriteLogHeight);
  
     Time elapsed;
 
@@ -184,7 +195,10 @@ int main()
  
     // Variável de pausa
     bool paused = true;
+    // Variável de hit do jogador
     bool hit = false;
+    // Variável para determinar abertura para input
+    bool acceptInput = true;
 
     // Fonte para o HUD
     Font mainFont;
@@ -218,6 +232,14 @@ int main()
         // *********************************************
         // RECEBE INPUTS DO JOGADOR
         // *********************************************
+        Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == Event::KeyReleased && !paused) {
+                acceptInput = true;
+                spriteAxe.setPosition(-500, spriteAxeY);
+            }
+        }
+
         if (Keyboard::isKeyPressed(Keyboard::Escape)) {
             window.close();
         }
@@ -226,13 +248,19 @@ int main()
             gameScore = 0;
             timeRemaining = 5;
         }
-        if (Keyboard::isKeyPressed(Keyboard::Left)) {
-            sideLumberjack = Side::LEFT;
-            hit = true;
-        }
-        if (Keyboard::isKeyPressed(Keyboard::Right)) {
-            sideLumberjack = Side::RIGHT;
-            hit = true;
+        if (acceptInput) {
+            if (Keyboard::isKeyPressed(Keyboard::Left)) {
+                sideLumberjack = Side::LEFT;
+                gameScore++;
+                timeRemaining += (2 / gameScore) + .15;
+                acceptInput = false;
+            }
+            if (Keyboard::isKeyPressed(Keyboard::Right)) {
+                sideLumberjack = Side::RIGHT;
+                gameScore++;
+                timeRemaining += (2 / gameScore) + .15;
+                acceptInput = false;
+            }
         }
 
         // *********************************************
@@ -272,13 +300,17 @@ int main()
             }
             
             // Atualiza posicao do jogador
-            if (sideLumberjack == Side::LEFT) {
-                spriteLumberjack.setPosition(spriteLumberjackLeftX, spriteLumberjackY);
-                spriteAxe.setPosition(spriteAxeLeftX, spriteAxeY);
-            } 
-            else {
-                spriteLumberjack.setPosition(spriteLumberjackRightX, spriteLumberjackY);
-                spriteAxe.setPosition(spriteAxeRightX, spriteAxeY);
+            if (!acceptInput) {
+                if (sideLumberjack == Side::LEFT) {
+                    spriteLumberjack.setPosition(spriteLumberjackLeftX, spriteLumberjackY);
+                    spriteAxe.setPosition(spriteAxeLeftX, spriteAxeY);
+                    updateBranches(spriteBranches, sidesBranch, BRANCH_AMOUNT, gameScore);
+                } 
+                else {
+                    spriteLumberjack.setPosition(spriteLumberjackRightX, spriteLumberjackY);
+                    spriteAxe.setPosition(spriteAxeRightX, spriteAxeY);
+                    updateBranches(spriteBranches, sidesBranch, BRANCH_AMOUNT, gameScore);
+                }
             }
             // Se a abelha estiver desativada, posiciona a abelha
             if (!beeActive) {
