@@ -137,7 +137,7 @@ int main()
     Sprite spriteAxe;
     spriteAxe.setTexture(textureAxe);
     spriteAxe.setScale(scale, scale);
-    spriteAxe.setPosition(0, 0);
+    spriteAxe.setPosition(spriteLumberjackLeftX + (spriteLumberjackWidth/2), spriteLumberjackY + (spriteLumberjackHeight/2));
 
     // Configurações para a lápide
     Texture textureRip;
